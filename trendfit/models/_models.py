@@ -31,7 +31,7 @@ class LinearNoTrendFourier(BaseEstimator):
     least squares (OLS).
 
     """
-    def __init__(self, f_order=3):
+    def __init__(self, f_order=3, period=1):
         """
 
         Parameters
@@ -41,17 +41,16 @@ class LinearNoTrendFourier(BaseEstimator):
 
         """
         self.f_order = f_order
-
+        self.period = period
         self._parameters = {
             'fourier_terms': [],
             'intercept': None,
         }
-
         super().__init__()
 
     def _fourier_terms(self, t, degree):
-        return [np.cos(2 * degree * np.pi * t),
-                np.sin(2 * degree * np.pi * t)]
+        return [np.cos(2 * degree * np.pi * t / self.period),
+                np.sin(2 * degree * np.pi * t / self.period)]
 
     def _regressor_terms(self, t):
         reg_terms = []
@@ -127,7 +126,7 @@ class LinearTrendFourier(LinearNoTrendFourier):
     least squares (OLS).
 
     """
-    def __init__(self, f_order=3):
+    def __init__(self, f_order=3,period=1):
         """
 
         Parameters
@@ -136,7 +135,7 @@ class LinearTrendFourier(LinearNoTrendFourier):
             Finite order of the truncated Fourier series (default=3).
 
         """
-        super().__init__(f_order)
+        super().__init__(f_order,period)
 
         self._parameters.update({'trend': None})
 
@@ -208,7 +207,7 @@ class LinearBrokenTrendFourier(LinearTrendFourier):
     an application to ethane" arXiv:1903.05403v1
 
     """
-    def __init__(self, f_order=3, t_break=None, opt_bounds=None,
+    def __init__(self, f_order=3, period=1, t_break=None, opt_bounds=None,
                  **opt_kwargs):
         """
 
@@ -229,7 +228,7 @@ class LinearBrokenTrendFourier(LinearTrendFourier):
             :func:`scipy.optimize.dual_annealing`.
 
         """
-        super().__init__(f_order)
+        super().__init__(f_order,period)
 
         self._fit_t_break = t_break is None
         self._parameters['t_break'] = t_break
